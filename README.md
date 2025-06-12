@@ -42,7 +42,6 @@ by Daris Ilham
 Proyek ini menyederhanakan pembuatan *web applications* yang aman dan mudah dipelihara (*maintainable*). Fitur-fitur utamanya meliputi:
 
 * 🔒 **Secure Authentication:** Mengimplementasikan *login*, *registration*, dan *profile management* berbasis JWT untuk *user sessions* yang terlindungi.
-* 🖼️ **Reusable UI Components:** Menyediakan *library* elemen React yang dapat disesuaikan untuk pengembangan *UI* yang konsisten dan efisien.
 * 📝 **Robust Task Management:** Mendukung *task creation*, *filtering*, *validation*, dan *categorization* untuk menyederhanakan *workflow*.
 * 🚀 **Modern Development Stack:** Mengintegrasikan Vite, Tailwind CSS, dan ESLint untuk pengembangan berkualitas tinggi yang cepat.
 * ⚙️ **Error Handling & Middleware:** Memastikan stabilitas dengan *comprehensive error management* dan *validation layers*.
