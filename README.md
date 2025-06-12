@@ -35,7 +35,7 @@ by Daris Ilham
 
 ## Overview
 
-`ta-rpl-sehari-app` adalah *full-stack developer toolkit* untuk membangun aplikasi *task management* yang aman dan interaktif menggunakan React, Node.js, dan *modern tooling*. Ini menyederhanakan pengembangan *web apps* yang *scalable* dengan fokus pada *user authentication*, *task organization*, dan *modular UI*.
+`ta-rpl-sehari-app` adalah aplikasi *task management* yang dibuat menggunakan MERN Stack yaitu MongoDB, Express Js, React, dan Node.js, yang mana ini merupakan *modern tooling*. Ini menyederhanakan pengembangan *web apps* yang *scalable* dengan fokus pada *user authentication*, *task organization*, dan *modular UI*.
 
 ### Mengapa ta-rpl-sehari-app?
 
