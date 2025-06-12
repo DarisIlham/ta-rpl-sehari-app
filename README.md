@@ -35,7 +35,7 @@ by Daris Ilham
 
 ## Overview
 
-`ta-rpl-sehari-app` adalah aplikasi *task management* yang dibuat menggunakan MERN Stack yaitu MongoDB, Express Js, React, dan Node.js, yang mana ini merupakan *modern tooling*. Ini menyederhanakan pengembangan *web apps* yang *scalable* dengan fokus pada *user authentication*, *task organization*, dan *modular UI*.
+`ta-rpl-sehari-app` Sebagai aplikasi task management yang dibangun dengan MERN Stack (MongoDB, Express.js, React, Node.js), proyek ini memanfaatkan modern tooling untuk menyederhanakan pengembangan web apps. Fokus utamanya adalah pada scalable deployment, user authentication yang solid, task organization yang efisien, dan modular UI.
 
 ### Mengapa ta-rpl-sehari-app?
 
