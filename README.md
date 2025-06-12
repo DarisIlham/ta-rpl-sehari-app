@@ -1,4 +1,5 @@
 # TA-RPL-SEHARI-APP
+by Daris Ilham
 
 *Empowering Daily Productivity Through Seamless Innovation*
 
