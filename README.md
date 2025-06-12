@@ -2,7 +2,7 @@
 
 *Empowering Daily Productivity Through Seamless Innovation*
 
-![Last Commit](https://img.shields.io/github/last-commit/DarisIlham/ta-rpl-sehari-app) ![Today's Date](https://img.shields.io/badge/today-{{DATE_PLACEHOLDER}}-blue) ![JavaScript Percentage](https://img.shields.io/github/languages/percentage/DarisIlham/ta-rpl-sehari-app/JavaScript) ![Languages](https://img.shields.io/github/languages/count/DarisIlham/ta-rpl-sehari-app)
+![Last Commit](https://img.shields.io/github/last-commit/DarisIlham/ta-rpl-sehari-app) ![Today's Date](https://img.shields.io/badge/today-{{DATE_PLACEHOLDER}}-blue)  ![Languages](https://img.shields.io/github/languages/count/DarisIlham/ta-rpl-sehari-app)
 
 *Built with the tools and technologies:*
 
