@@ -58,7 +58,7 @@ Proyek ini membutuhkan *dependencies* berikut:
 
 ### Installation
 
-Bangun `ta-rpl-sehari-app` dari *source* dan instal *dependencies*:
+Build `ta-rpl-sehari-app` dari *source* dan instal *dependencies*:
 
 1.  **Clone the repository:**
     ```bash
