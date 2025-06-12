@@ -35,30 +35,30 @@ by Daris Ilham
 
 ## Overview
 
-`ta-rpl-sehari-app` is a full-stack developer toolkit for building secure, interactive task management applications using React, Node.js, and modern tooling. It streamlines the development of scalable web apps with a focus on user authentication, task organization, and a modular UI.
+`ta-rpl-sehari-app` adalah *full-stack developer toolkit* untuk membangun aplikasi *task management* yang aman dan interaktif menggunakan React, Node.js, dan *modern tooling*. Ini menyederhanakan pengembangan *web apps* yang *scalable* dengan fokus pada *user authentication*, *task organization*, dan *modular UI*.
 
-### Why ta-rpl-sehari-app?
+### Mengapa ta-rpl-sehari-app?
 
-This project simplifies creating secure, maintainable web applications. The core features include:
+Proyek ini menyederhanakan pembuatan *web applications* yang aman dan mudah dipelihara (*maintainable*). Fitur-fitur utamanya meliputi:
 
-* 🔒 **Secure Authentication:** Implements JWT-based login, registration, and profile management for protected user sessions.
-* 🖼️ **Reusable UI Components:** Provides a library of customizable React elements for consistent, efficient UI development.
-* 📝 **Robust Task Management:** Supports task creation, filtering, validation, and categorization to streamline workflows.
-* 🚀 **Modern Development Stack:** Integrates Vite, Tailwind CSS, and ESLint for rapid, high-quality development.
-* ⚙️ **Error Handling & Middleware:** Ensures stability with comprehensive error management and validation layers.
+* 🔒 **Secure Authentication:** Mengimplementasikan *login*, *registration*, dan *profile management* berbasis JWT untuk *user sessions* yang terlindungi.
+* 🖼️ **Reusable UI Components:** Menyediakan *library* elemen React yang dapat disesuaikan untuk pengembangan *UI* yang konsisten dan efisien.
+* 📝 **Robust Task Management:** Mendukung *task creation*, *filtering*, *validation*, dan *categorization* untuk menyederhanakan *workflow*.
+* 🚀 **Modern Development Stack:** Mengintegrasikan Vite, Tailwind CSS, dan ESLint untuk pengembangan berkualitas tinggi yang cepat.
+* ⚙️ **Error Handling & Middleware:** Memastikan stabilitas dengan *comprehensive error management* dan *validation layers*.
 
 ## Getting Started
 
 ### Prerequisites
 
-This project requires the following dependencies:
+Proyek ini membutuhkan *dependencies* berikut:
 
 * **Programming Language:** JavaScript
 * **Package Manager:** Npm
 
 ### Installation
 
-Build `ta-rpl-sehari-app` from the source and install dependencies:
+Bangun `ta-rpl-sehari-app` dari *source* dan instal *dependencies*:
 
 1.  **Clone the repository:**
     ```bash
@@ -70,15 +70,15 @@ Build `ta-rpl-sehari-app` from the source and install dependencies:
     ```
 3.  **Install the dependencies:**
 
-    Using `npm`:
+    Menggunakan `npm`:
     ```bash
     > npm install
     ```
 
 ### Usage
 
-Run the project with:
+Jalankan proyek dengan:
 
-Using `npm`:
+Menggunakan `npm`:
 ```bash
 > npm start
