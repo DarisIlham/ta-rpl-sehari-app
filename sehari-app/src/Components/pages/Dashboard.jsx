@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import amazing from "../images/Space.jpg";
-// import library from "../images/homebg.jpg"
-import React from 'react';
+import { useNavigate } from "react-router-dom";
+import React from "react";
+import axios from "axios";
+import { FaUser } from "react-icons/fa";
 function useClickOutside(ref, callback) {
   useEffect(() => {
     function handleClickOutside(event) {
@@ -20,20 +22,36 @@ function useClickOutside(ref, callback) {
 function Dash() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
-  const [newTaskTime, setNewTaskTime] = useState("08:00");
-  const [newTaskCategory, setNewTaskCategory] = useState("Session");
+  const [newTaskTime, setNewTaskTime] = useState("");
+  const [newTaskCategory, setNewTaskCategory] = useState("Work");
   const [activeSection, setActiveSection] = useState("General Tasks");
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTaskId, setActiveTaskId] = useState(null);
-//   const [showColorPicker, setShowColorPicker] = useState(false);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  //   const [showColorPicker, setShowColorPicker] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const fetchTasks = async () => {
+    try {
+      const response = await api.get("/");
+      // Ensure we always have an array
+      const data = Array.isArray(response.data) ? response.data : [];
+      setTasks(data);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      setTasks([]); // Fallback to empty array on error
+    }
+  };
+  const api = axios.create({
+    baseURL: `${API_BASE_URL}/api/tasks`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   const menuRef = useRef(null);
   const [wallpapers] = useState([
-    {
-      id: 1,
-      name: "Default",
-      class: "bg-[#191919]",
-      thumbnailClass: "bg-[#191919]",
-    },
     {
       id: 2,
       name: "Space",
@@ -45,16 +63,10 @@ function Dash() {
 
   const [selectedWallpaper, setSelectedWallpaper] = useState(wallpapers[0]);
   const isImageBackground = !!selectedWallpaper.image;
-//   const isDarkBackground = selectedWallpaper.darkText || false;
+  //   const isDarkBackground = selectedWallpaper.darkText || false;
 
-  const sections = ["General Tasks", "My Schedule", "Work", "Important"];
-  const categories = [
-    
-    "Work",
-    "Personal",
-    "Me Time",
-    "Project",
-  ];
+  const sections = ["General Tasks", "Daily", "Work"];
+  const categories = ["Work", "Personal", "Me Time", "Project"];
   const statuses = ["Upcoming", "Ongoing", "Complete"];
   const [colorOptions] = useState([
     "bg-[#32576d]",
@@ -69,116 +81,167 @@ function Dash() {
     setActiveTaskId(null);
   });
 
-  const addTask = () => {
+  const addTask = async () => {
     if (newTask.trim()) {
-      const randomColor =
-        colorOptions[Math.floor(Math.random() * colorOptions.length)];
-      const task = {
-        id: Date.now().toString(),
-        text: newTask,
-        time: newTaskTime,
-        category: newTaskCategory,
-        status: "Upcoming",
-        section: activeSection,
-        color: randomColor,
-        createdAt: new Date(),
-      };
-      setTasks([...tasks, task]);
-      setNewTask("");
+      try {
+        const [hours, minutes] = newTaskTime.split(":").map(Number);
+        const now = new Date();
+
+        const taskTime = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          hours,
+          minutes
+        );
+
+        // Format waktu menjadi "HH:mm"
+        const timeFormatted = taskTime.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false, // gunakan 24 jam
+        });
+
+        const taskData = {
+          name: newTask,
+          time: taskTime, // objek Date asli (jika masih dibutuhkan)
+          timeString: timeFormatted, // tambahkan format jam:menit
+          category: newTaskCategory,
+          status: "Upcoming",
+          section: activeSection,
+          color: colorOptions[Math.floor(Math.random() * colorOptions.length)],
+        };
+
+        const response = await api.post("/", taskData);
+        setTasks([...tasks, response.data]);
+        setNewTask("");
+      } catch (error) {
+        console.error("Error adding task:", error);
+      }
     }
   };
-  const updateTaskStatus = (id, newStatus) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, status: newStatus } : task
-      )
-    );
+
+  // const updateTaskStatus = async (id, newStatus) => {
+  //   try {
+  //     await api.put(`/${id}`, { status: newStatus });
+  //     setTasks(
+  //       tasks.map((task) =>
+  //         task.task_id === id ? { ...task, status: newStatus } : task
+  //       )
+  //     );
+  //   } catch (error) {
+  //     console.error("Error updating task status:", error);
+  //   }
+  // };
+
+  const profileNavigate = (e) => {
+    e.preventDefault();
+    navigate("/profile");
   };
   const updateTaskColor = (id, newColor) => {
     setTasks(
       tasks.map((task) =>
-        task.id === id ? { ...task, color: newColor } : task
+        task.task_id === id ? { ...task, color: newColor } : task
       )
     );
   };
 
-  const removeTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+  const removeTask = async (id) => {
+    try {
+      await api.delete(`/${id}`);
+      setTasks(tasks.filter((task) => task.task_id !== id));
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
     const { source, destination } = result;
 
-    // Dropped outside the list
-    if (!destination) return;
-
-    // Same position
     if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
+      !destination ||
+      (source.droppableId === destination.droppableId &&
+        source.index === destination.index)
     ) {
       return;
     }
 
-    // Moving within the same column (reordering)
-    if (source.droppableId === destination.droppableId) {
-      const status = source.droppableId;
+    // Find the task being moved
+    const taskToUpdate = tasks.find(
+      (task) =>
+        task.status === source.droppableId &&
+        task.task_id.toString() === result.draggableId
+    );
+
+    if (!taskToUpdate) return;
+
+    // Map frontend status to backend status
+
+    if (source.droppableId !== destination.droppableId) {
+      try {
+        // Directly using the status value (no mapping needed)
+        await api.put(`/drag/${taskToUpdate.task_id}`, {
+          status: destination.droppableId,
+        });
+
+        setTasks(
+          tasks.map((task) =>
+            task.task_id === taskToUpdate.task_id
+              ? { ...task, status: destination.droppableId }
+              : task
+          )
+        );
+      } catch (error) {
+        console.error("Error updating task status:", error);
+      }
+    } else {
+      // Handle reordering within the same column
       const newTasks = [...tasks];
-      const filteredTasks = newTasks.filter((task) => task.status === status);
+      const filteredTasks = newTasks.filter(
+        (task) => task.status === source.droppableId
+      );
 
       const [removed] = filteredTasks.splice(source.index, 1);
       filteredTasks.splice(destination.index, 0, removed);
 
       const updatedTasks = newTasks.map((task) =>
-        task.status === status ? filteredTasks.shift() : task
+        task.status === source.droppableId ? filteredTasks.shift() : task
       );
-
-      setTasks(updatedTasks);
-    } else {
-      // Moving to a different column (changing status)
-      const sourceStatus = source.droppableId;
-      const destStatus = destination.droppableId;
-
-      const newTasks = [...tasks];
-      const sourceTasks = newTasks.filter(
-        (task) => task.status === sourceStatus
-      );
-      const destTasks = newTasks.filter((task) => task.status === destStatus);
-
-      const [movedTask] = sourceTasks.splice(source.index, 1);
-      movedTask.status = destStatus;
-      destTasks.splice(destination.index, 0, movedTask);
-
-      const updatedTasks = newTasks.map((task) => {
-        if (task.status === sourceStatus) return sourceTasks.shift();
-        if (task.status === destStatus) return destTasks.shift();
-        return task;
-      });
 
       setTasks(updatedTasks);
     }
   };
 
-  const filteredTasks = tasks.filter((task) => {
+  const filteredTasks = (tasks || []).filter((task) => {
     const matchesSection =
       activeSection === "General Tasks" || task.section === activeSection;
-    const matchesSearch = task.text
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const matchesSearch = task.name
+      ?.toLowerCase()
+      ?.includes(searchTerm.toLowerCase());
     return matchesSection && matchesSearch;
   });
 
   const tasksByStatus = (status) => {
-    return filteredTasks
+    return (filteredTasks || [])
       .filter((task) => task.status === status)
-      .sort((a, b) => {
-        const timeToMinutes = (time) => {
-          const [hours, minutes] = time.split(":").map(Number);
-          return hours * 60 + minutes;
-        };
-        return timeToMinutes(a.time) - timeToMinutes(b.time);
-      });
+      .sort((a, b) => new Date(a.time) - new Date(b.time)); // urutkan berdasar waktu sebenarnya
   };
+
+  useEffect(() => {
+    if (token) {
+      fetchTasks();
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
+
+  if (!token) {
+    return null;
+  }
 
   return (
     <div className={`max-h-screen`}>
@@ -193,19 +256,17 @@ function Dash() {
       <div className="flex flex-col md:flex-row h-[calc(100vh-56px)]">
         {/* Sidebar */}
 
-        <div className="w-100 bg-[#202020] p-4 flex flex-col gap-4 shadow-md z-10">
+        <div className="w-100 h-full bg-[#202020]  flex flex-col gap-4 shadow-md z-10">
           <div className="mt-1">
             {" "}
             {/* Puts it at the bottom */}
-            <h3 className="text-xl font-medium text-white mb-2">
-              Wallpaper
-            </h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className="text-xl font-medium text-white mb-2 p-4">Wallpaper</h3>
+            <div className="flex flex-wrap gap-2 p-4">
               {wallpapers.map((wallpaper) => (
                 <button
                   key={wallpaper.id}
                   onClick={() => setSelectedWallpaper(wallpaper)}
-                  className={`w-45 h-10 rounded-md border-2 overflow-hidden ${
+                  className={`w-45 h-10 rounded-md border-2 overflow-hidden  ${
                     selectedWallpaper.id === wallpaper.id
                       ? "border-white ring-2 ring-slate-200"
                       : "border-transparent hover:border-gray-300"
@@ -228,13 +289,13 @@ function Dash() {
             </div>
           </div>
           {/* Add Task Form */}
-          <div className="space-y-2 border-t mt-9 border-slate-200">
+          <div className="space-y-2  mt-[-16px] border-slate-200 p-4">
             <input
               type="text"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               placeholder="Add new task ..."
-              className="w-full border-b  p-2 text-2xl mb-5 border-slate-200 bg-[#202020] bg-opacity-90 text-white  hover:text-white transition"
+              className="w-full border-b p-2 text-2xl mb-5 border-slate-200 bg-[#202020] bg-opacity-90 text-white  hover:text-white transition"
             />
             <div className="flex gap-5">
               <input
@@ -257,25 +318,25 @@ function Dash() {
             </div>
             <button
               onClick={addTask}
-              className="w-full bg-[#000000] hover:bg-slate-200 hover:text-[#202020] transition bg-opacity-85 mb-5 text-2xl text-white p-2 rounded-xl  "
+              className="w-full bg-[#000000] hover:bg-slate-200 hover:text-[#202020] transition bg-opacity-85 mb-1 text-2xl text-white p-2 rounded-xl  "
             >
               Add Task
             </button>
           </div>
 
           {/* Search */}
-          <div>
+          <div className=" mx-4">
             <input
               type="text"
               placeholder="Find Task"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2  bg-[#202020] mb-5 focus:outline-none text-xl border-b text-white  hover:text-white transition"
+              className="w-full border-b p-2 text-xl mb-1  bg-[#202020] bg-opacity-90 text-white  "
             />
           </div>
 
           {/* Sections */}
-          <div className="space-y-1 text-white text-xl">
+          <div className="space-y-1 text-white text-xl p-4">
             {sections.map((section) => (
               <button
                 key={section}
@@ -290,23 +351,31 @@ function Dash() {
               </button>
             ))}
           </div>
+          <div>
+            <button
+              onClick={profileNavigate}
+              className="fixed w-100  bg-[#2f2f2f] bottom-0 left-0 flex items-center gap-2 text-xl text-white py-2  hover:bg-slate-200 hover:text-[#202020] transition "
+            >
+              <FaUser className="text-white ml-5" /> {/* ikon user */}
+              Profile
+            </button>
+          </div>
         </div>
 
         {/* Main Content */}
         <div
           className="flex-1 p-4 overflow-auto transition-all duration-500"
-           style={
+          style={
             isImageBackground
-              ? { 
+              ? {
                   backgroundImage: `url(${selectedWallpaper.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundAttachment: 'fixed'
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundAttachment: "fixed",
                 }
               : { background: selectedWallpaper.class }
           }
         >
-          
           <DragDropContext onDragEnd={onDragEnd}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {statuses.map((status) => (
@@ -323,8 +392,8 @@ function Dash() {
                       <div className="space-y-3">
                         {tasksByStatus(status).map((task, index) => (
                           <Draggable
-                            key={task.id}
-                            draggableId={task.id}
+                            key={task.task_id}
+                            draggableId={task.task_id.toString()}
                             index={index}
                           >
                             {(provided, snapshot) => (
@@ -339,18 +408,33 @@ function Dash() {
                          ? "transform scale-105 shadow-lg z-10"
                          : ""
                      }
-                     ${activeTaskId === task.id ? "ring-2 ring-white" : ""}`}
+                     ${
+                       activeTaskId === task.task_id ? "ring-2 ring-white" : ""
+                     }`}
                                 onClick={() =>
                                   setActiveTaskId(
-                                    task.id === activeTaskId ? null : task.id
+                                    task.task_id === activeTaskId
+                                      ? null
+                                      : task.task_id
                                   )
                                 }
                               >
                                 {/* Task content */}
                                 <div className="flex justify-between items-start mb-2">
-                                  <h3 className="font-medium text-[#dbe4e0]">{task.text}</h3>
+                                  <h3 className="font-medium text-[#dbe4e0]">
+                                    {task.name}
+                                  </h3>
                                   <span className="text-sm text-[#dbe4e0]">
-                                    {task.time}
+                                    {new Date(task.time).toLocaleString(
+                                      "en-EN",
+                                      {
+                                        day: "numeric",
+                                        month: "long",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                      }
+                                    )}
                                   </span>
                                 </div>
                                 <div className="flex justify-between text-sm text-[#dbe4e0] mb-3">
@@ -359,7 +443,7 @@ function Dash() {
                                 </div>
 
                                 {/* Context menu */}
-                                {activeTaskId === task.id && (
+                                {activeTaskId === task.task_id && (
                                   <div
                                     ref={menuRef}
                                     className="absolute right-0 top-full mt-1 bg-[#3b3b3b] shadow-xl rounded-md p-3 z-20 w-72 "
@@ -378,7 +462,10 @@ function Dash() {
                                             key={color}
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              updateTaskColor(task.id, color);
+                                              updateTaskColor(
+                                                task.task_id,
+                                                color
+                                              );
                                               setActiveTaskId(null);
                                             }}
                                             className={`w-8 h-8 rounded-full ${color} cursor-pointer hover:opacity-80 transition-all
@@ -399,29 +486,7 @@ function Dash() {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          updateTaskStatus(task.id, "Complete");
-                                          setActiveTaskId(null);
-                                        }}
-                                        className="w-full text-left text-sm bg-green-100 hover:bg-green-200 text-green-800 px-4 py-2.5 rounded-lg transition flex items-center gap-2"
-                                      >
-                                        <svg
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          className="h-4 w-4"
-                                          viewBox="0 0 20 20"
-                                          fill="currentColor"
-                                        >
-                                          <path
-                                            fillRule="evenodd"
-                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                            clipRule="evenodd"
-                                          />
-                                        </svg>
-                                        Mark as Complete
-                                      </button>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          removeTask(task.id);
+                                          removeTask(task.task_id);
                                         }}
                                         className="w-full text-left text-sm bg-red-100 hover:bg-red-200 text-red-800 px-4 py-2.5 rounded-lg transition flex items-center gap-2"
                                       >
